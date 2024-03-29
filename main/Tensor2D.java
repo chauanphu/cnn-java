@@ -57,6 +57,20 @@ public class Tensor2D {
         return res;
     }
 
+    public Tensor2D add_vector(Tensor2D vector) {
+        if (vector.ncols != 1) {
+            throw new IllegalArgumentException("The vector must have only one column.");
+        }
+        if (vector.nrows != this.nrows) {
+            throw new IllegalArgumentException("The number of rows of the vector must be the same as the number of rows of the tensor.");
+        }
+        Tensor2D res = new Tensor2D(nrows, ncols);
+        for (int i = 0; i < ncols; i++) {
+            for (int j = 0; j < nrows; j++) res.data[j][i] = this.data[j][i] + vector.data[j][0];
+        }
+        return res;
+    }
+
     public Tensor2D mul (Tensor2D otherTensor) {
         if ((otherTensor.nrows != this.nrows) || (otherTensor.ncols != this.ncols)) {
             throw new IllegalArgumentException("The dimensions of the two tensors must be the same.");
@@ -98,9 +112,8 @@ public class Tensor2D {
         Tensor2D t = new Tensor2D(2, 3);
         double[][] data = {{1, 2, 3}, {4, 5, 6}};
         t.fill_data(data);
-        Tensor2D t2 = new Tensor2D(3,2);
-        double[][] data2 = {{7, 8}, {9, 10}, {11, 12}};
-        t2.fill_data(data2);
-        System.out.println(t.dot(t2));
+        Tensor2D vector = new Tensor2D(2, 1);
+        vector.fill_data(new double[][]{{1}, {2}});
+        System.out.println(t.add_vector(vector));
     }
 }

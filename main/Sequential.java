@@ -1,33 +1,39 @@
 public class Sequential {
-    Layer[] layers;
+    Layer headLayer;
+    Tensor2D result = null;
     Sequential(Layer[] layers) {
-        this.layers = layers;
+        this.headLayer = layers[0];
+        for (int i = 0; i < layers.length; i++) {
+            if (i < layers.length - 1) layers[i].nextLayer = layers[i + 1];
+            if (i > 0) layers[i].previousLayer = layers[i - 1];
+            layers[i].init();
+        }
     }
 
     public Tensor2D predict(Tensor2D input) {
-        Tensor2D previousInput = input.transpose();
-        Tensor2D output = null;
-        int m = input.nrows;
-        layers[0].input = previousInput;
-        layers[0].initiate_weights(layers[0].nNodes, input.ncols);
-        layers[0].initiate_intercept(layers[0].nNodes, m);
-        for (int i = 1; i < layers.length; i++) {
-            // a = W * x + b
-            // Input layer's dimensions = [n_prev, m]
-            layers[i].input = previousInput;
-            // W's dimensions =  [n_curr, n_prev]
-            layers[i].initiate_weights(layers[i].nNodes, layers[i - 1].nNodes);
-            // b's dimensions = [n_curr, m]
-            layers[i].initiate_intercept(layers[i].nNodes, m);
-            output = layers[i].forward();
-            previousInput = output;
+        headLayer.input = input.transpose();
+        Tensor2D result = headLayer.forward().transpose();
+        this.result = result;
+        return result;
+    }
+
+    public void print_result() {
+        // Iterate through each sample:
+        for (int i = 0; i < this.result.nrows; i++) {
+            System.out.print("Sample " + (i + 1) + ": ");
+            // Iterate through each feature:
+            for (int j = 0; j < this.result.ncols; j++) {
+                System.out.print(this.result.data[i][j] + " ");
+            }
+            System.out.println();
         }
-        return output;
     }
 
     public void summary() {
-        for (Layer layer : layers) {
-            System.out.println(layer.toString());
+        Layer currentLayer = headLayer;
+        while (currentLayer != null) {
+            System.out.println(currentLayer);
+            currentLayer = currentLayer.nextLayer;
         }
     }
 }

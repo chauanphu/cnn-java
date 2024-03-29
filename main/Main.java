@@ -15,17 +15,21 @@ public class Main {
         // System.out.println(inputTensor2d.nrows + " " + inputTensor2d.ncols);
 
         // Create the network
-        Tensor2D input = new Tensor2D(1, 3);
-        input.fill_data(new double[][]{{1, 2, 3}});
+        Tensor2D input = new Tensor2D(new double[][]{
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        });
         Sequential model = new Sequential(
             new Layer[] {
-                new Layer(3),
-                new Layer(128),
-                new Layer(10)
+                new InputLayer(3, input),
+                new DenseLayer(128),
+                new DenseLayer(10)
             }
         );
         model.summary();
-        System.out.println(model.predict(input).data);
+        model.predict(input);
+        model.print_result();
     }
 
     public int[][] getMatrixOfImage(BufferedImage bufferedImage) {
