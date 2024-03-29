@@ -5,7 +5,7 @@ public abstract class Layer {
     Tensor2D input;
     Layer previousLayer = null;
     Layer nextLayer = null;
-
+    static String name;
     Layer(int nNodes) {
         this.nNodes = nNodes;
     }
@@ -14,6 +14,10 @@ public abstract class Layer {
 
     public abstract void init();
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         return "Number of nodes: " + nNodes;
@@ -21,7 +25,8 @@ public abstract class Layer {
 }
 
 class InputLayer extends Layer {
-    InputLayer(int nNodes, Tensor2D input) {
+    static String name = "Input Layer";
+    InputLayer(int nNodes) {
         super(nNodes);
     }
 
@@ -39,17 +44,21 @@ class DenseLayer extends Layer {
 
     Tensor2D weights;
     Tensor2D intercept;
-
-    DenseLayer(int nNodes) {
+    static String name = "Dense Layer";
+    Activation activation;
+    DenseLayer(int nNodes, Activation.ActivationType activationType) {
         super(nNodes);
+        this.activation = new Activation(activationType);
     }
-
+    
     @Override
     public Tensor2D forward() {
+        System.out.println("Layer: " + name + " is forward");
         // z = W * x + b; z's dimensions = [n_curr, m], W's dimensions =  [n_curr, n_prev], b's dimensions = [n_curr, m]
         Tensor2D input = previousLayer.output;
         Tensor2D z = this.weights.dot(input).add_vector(intercept);
-        this.output = z;
+        Tensor2D a = activation.cal(z);
+        this.output = a;
         if (nextLayer != null) {
             nextLayer.input = this.output;
             return nextLayer.forward();

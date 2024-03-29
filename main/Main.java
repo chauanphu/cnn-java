@@ -10,9 +10,10 @@ import javax.imageio.ImageIO;
 public class Main {
     public static void main(String[] args) {
         // Load the dataset
-        // int[][] data = readCSV("main/mnist-train.csv", true);
-        // Tensor2D inputTensor2d = new Tensor2D(data);
-        // System.out.println(inputTensor2d.nrows + " " + inputTensor2d.ncols);
+        List<Tensor2D> data = readCSV("main/mnist-train.csv", true);
+        Tensor2D inputTensor2d = data.get(0);
+        Tensor2D targetTensor2d = data.get(1);
+        System.out.println(inputTensor2d.ncols + " " + targetTensor2d.ncols);
 
         // Create the network
         Tensor2D input = new Tensor2D(new double[][]{
@@ -22,12 +23,13 @@ public class Main {
         });
         Sequential model = new Sequential(
             new Layer[] {
-                new InputLayer(3, input),
-                new DenseLayer(128),
-                new DenseLayer(10)
+                new InputLayer(784),
+                new DenseLayer(128, Activation.ActivationType.RELU),
+                new DenseLayer(10, Activation.ActivationType.SOFTMAX)
             }
         );
         model.summary();
+        model.fit(inputTensor2d, targetTensor2d, 10, 0.01);
         model.predict(input);
         model.print_result();
     }
@@ -51,32 +53,34 @@ public class Main {
         return pixels;
     }
 
-    public static int[][] readCSV(String filename, boolean hasHead) {
-    List<int[]> data = new ArrayList<>();
-    // Try to read the CSV file
-    try (Scanner scanner = new Scanner(new File(filename))) {
-        if (hasHead) {
-            scanner.nextLine();
-        }
-        while (scanner.hasNextLine()) {
-            String[] line = scanner.nextLine().split(",");
-            // Skip the index column
-            int[] row = new int[line.length - 1];
-            for (int i = 1; i < line.length - 1; i++) {
-                row[i] = Integer.parseInt(line[i]);
+    public static List<Tensor2D> readCSV(String filename, boolean hasHead) {
+        List<int[]> data = new ArrayList<>();
+        List<Integer> labels = new ArrayList<>();
+        List<Tensor2D> result = new ArrayList<>();
+        // Try to read the CSV file
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            if (hasHead) {
+                scanner.nextLine();
             }
-            data.add(row);
+            while (scanner.hasNextLine()) {
+                String[] line = scanner.nextLine().split(",");
+                // Skip the index column
+                labels.add(Integer.parseInt(line[0]));
+                int[] row = new int[line.length - 1];
+                for (int i = 1; i < line.length - 1; i++) {
+                    row[i] = Integer.parseInt(line[i]);
+                }
+                data.add(row);
+            }
+            result.add(new Tensor2D(data));
+            Tensor2D target = new Tensor2D(labels.size(), 10);
+            for (int i = 0; i < labels.size(); i++) {
+                target.data[i][labels.get(i)] = 1;
+            }
+            result.add(target);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-    } catch (FileNotFoundException e) {
-        e.printStackTrace();
-    }
-
-    // Convert list of rows to 2D array
-    int[][] result = new int[data.size()][];
-    for (int i = 0; i < data.size(); i++) {
-        result[i] = data.get(i);
-    }
-
-    return result;
+        return result;
     }
 }

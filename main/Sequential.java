@@ -10,7 +10,19 @@ public class Sequential {
         }
     }
 
+    public void fit(Tensor2D input, Tensor2D target, int epochs, double learningRate) {
+        System.out.println("Fitting...");
+        // for (int i = 0; i < epochs; i++) {
+        //     headLayer.input = input.transpose();
+        //     // headLayer.target = target.transpose();
+        //     // headLayer.forward();
+        //     // headLayer.backward();
+        //     // headLayer.updateWeights(learningRate);
+        // }
+    }
+
     public Tensor2D predict(Tensor2D input) {
+        System.out.println("Predicting...");
         headLayer.input = input.transpose();
         Tensor2D result = headLayer.forward().transpose();
         this.result = result;

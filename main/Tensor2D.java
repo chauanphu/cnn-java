@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Tensor2D {
     public int nrows;
     public int ncols;
@@ -12,6 +14,22 @@ public class Tensor2D {
         this.nrows = data.length;
         this.ncols = data[0].length;
         this.data = data;
+    }
+    Tensor2D(int[][] data) {
+        this.nrows = data.length;
+        this.ncols = data[0].length;
+        this.data = new double[nrows][ncols];
+        for (int i = 0; i < nrows; i++) {
+            for (int j = 0; j < ncols; j++) this.data[i][j] =  data[i][j];
+        }
+    }
+    Tensor2D(List<int[]> data) {
+        this.nrows = data.size();
+        this.ncols = data.get(0).length;
+        this.data = new double[nrows][ncols];
+        for (int i = 0; i < nrows; i++) {
+            for (int j = 0; j < ncols; j++) this.data[i][j] =  data.get(i)[j];
+        }
     }
     public Tensor2D fill_data(double[][] data) {
         // Check dimension of data
@@ -95,7 +113,27 @@ public class Tensor2D {
 
         return res;
     }
-   
+    
+    public Tensor2D argmax() {
+        Tensor2D res = new Tensor2D(this.nrows, this.ncols);
+        for (int i = 0; i < ncols; i++) {
+            double max = this.data[0][i];
+            for (int j = 1; j < nrows; j++) {
+                if (this.data[j][i] > max) {
+                    max = this.data[j][i];
+                }
+            }
+            for (int j = 0; j < nrows; j++) {
+                if (this.data[j][i] == max) {
+                    res.data[j][i] = 1;
+                } else {
+                    res.data[j][i] = 0;
+                }
+            }
+        }
+        return res;
+    }
+    
     @Override
     public String toString() {
         String res = "";
