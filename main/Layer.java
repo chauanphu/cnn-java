@@ -3,6 +3,7 @@ public abstract class Layer {
     int nNodes;
     Tensor2D output;
     Tensor2D input;
+    Tensor2D target;
     Layer previousLayer = null;
     Layer nextLayer = null;
     static String name;
@@ -11,7 +12,7 @@ public abstract class Layer {
     }
 
     public abstract Tensor2D forward();
-
+    
     public abstract void init();
 
     public String getName() {
@@ -35,7 +36,7 @@ class InputLayer extends Layer {
         output = input;
         return nextLayer.forward();
     }
-
+    
     @Override
     public void init() {}
 }
@@ -46,9 +47,9 @@ class DenseLayer extends Layer {
     Tensor2D intercept;
     static String name = "Dense Layer";
     Activation activation;
-    DenseLayer(int nNodes, Activation.ActivationType activationType) {
+    DenseLayer(int nNodes, Activation activation) {
         super(nNodes);
-        this.activation = new Activation(activationType);
+        this.activation = activation;
     }
     
     @Override
@@ -67,7 +68,21 @@ class DenseLayer extends Layer {
         }
     }
 
-    
+    /**
+     * 
+     * @param tensor2d dA
+     * @return
+     */
+    public Tensor2D backward(Tensor2D tensor2d) {
+        // Tensor2D dz = new Tensor2D(null);
+        // for (int i = 0; i < tensor2d.nrows; i++) {
+        //     for (int j = 0; j < tensor2d.ncols; j++) {
+        //         dz.data[i][j] = tensor2d.data[i][j] * activation.derivative(this.output).data[i][j];
+        //     }
+        // }
+        throw new UnsupportedOperationException("Unimplemented method 'backward'");
+    }
+
     public void initiate_weights (int row, int col) {
         this.weights = Tensor2D.randoms(row, col);
     }

@@ -10,10 +10,10 @@ import javax.imageio.ImageIO;
 public class Main {
     public static void main(String[] args) {
         // Load the dataset
-        List<Tensor2D> data = readCSV("main/mnist-train.csv", true);
-        Tensor2D inputTensor2d = data.get(0);
-        Tensor2D targetTensor2d = data.get(1);
-        System.out.println(inputTensor2d.ncols + " " + targetTensor2d.ncols);
+        // List<Tensor2D> data = readCSV("main/mnist-train.csv", true);
+        // Tensor2D inputTensor2d = data.get(0);
+        // Tensor2D targetTensor2d = data.get(1);
+        // System.out.println(inputTensor2d.ncols + " " + targetTensor2d.ncols);
 
         // Create the network
         Tensor2D input = new Tensor2D(new double[][]{
@@ -21,17 +21,23 @@ public class Main {
             {4, 5, 6},
             {7, 8, 9}
         });
+        Tensor2D target = new Tensor2D(new double[][]{
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1}
+        });
         Sequential model = new Sequential(
             new Layer[] {
-                new InputLayer(784),
-                new DenseLayer(128, Activation.ActivationType.RELU),
-                new DenseLayer(10, Activation.ActivationType.SOFTMAX)
-            }
+                new InputLayer(3),
+                new DenseLayer(128, new Relu()),
+                new DenseLayer(10, new Softmax())
+            },
+            new CategoryCrossEntropy()
         );
         model.summary();
-        model.fit(inputTensor2d, targetTensor2d, 10, 0.01);
+        // model.fit(input, target, 1, 0.01);
         model.predict(input);
-        model.print_result();
+        // model.print_result();
     }
 
     public int[][] getMatrixOfImage(BufferedImage bufferedImage) {

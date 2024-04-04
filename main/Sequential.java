@@ -1,8 +1,11 @@
 public class Sequential {
     Layer headLayer;
+    Layer tailLayer;
     Tensor2D result = null;
-    Sequential(Layer[] layers) {
+    Loss loss;
+    Sequential(Layer[] layers, Loss loss) {
         this.headLayer = layers[0];
+        this.tailLayer = layers[layers.length - 1];
         for (int i = 0; i < layers.length; i++) {
             if (i < layers.length - 1) layers[i].nextLayer = layers[i + 1];
             if (i > 0) layers[i].previousLayer = layers[i - 1];
@@ -11,14 +14,19 @@ public class Sequential {
     }
 
     public void fit(Tensor2D input, Tensor2D target, int epochs, double learningRate) {
-        System.out.println("Fitting...");
-        // for (int i = 0; i < epochs; i++) {
-        //     headLayer.input = input.transpose();
-        //     // headLayer.target = target.transpose();
-        //     // headLayer.forward();
-        //     // headLayer.backward();
-        //     // headLayer.updateWeights(learningRate);
-        // }
+        System.out.println("============= Fitting =============");
+        for (int i = 0; i < epochs; i++) {
+            System.out.println("Epoch " + (i + 1) + "/" + epochs + ": ...");
+            headLayer.input = input.transpose();
+            Tensor2D prediction = headLayer.forward();
+            loss.cal(input, target);
+            // prediction's dimensions = [10, m], n: probability of each class, m: number of samples
+            // Tensor2D dA = loss.cal(target, prediction);
+            // Tensor2D L = loss.cal(prediction, target);
+            tailLayer.target = target.transpose();
+            // headLayer.backward();
+            // headLayer.updateWeights(learningRate);
+        }
     }
 
     public Tensor2D predict(Tensor2D input) {
