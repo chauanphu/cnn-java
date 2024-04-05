@@ -4,4 +4,6 @@ import io
 
 # page = st.sidebar.selectbox("Choose a page", ["Homepage", "CSV Upload", "Image Upload"])
 
-st.title("Homepage")
+st.title("Home Page")
+
+# Introduction to the app

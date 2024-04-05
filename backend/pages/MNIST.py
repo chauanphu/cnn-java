@@ -20,17 +20,17 @@ def split_data(dataframe, label_col, train_size):
     from sklearn.model_selection import train_test_split
     X = dataframe.drop(label_col, axis=1).values.reshape(-1, 28, 28, 1)
     y = dataframe[label_col].values
-    st.write(f"X shape: {X.shape}, y shape: {y.shape}")
+    st.write(f"The input's number of sample: {X.shape[0]:,}, the image's dimension: {X.shape[1:]}")
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_size)
-    st.write(f"X_train shape: {X_train.shape}, y_train shape: {y_train.shape}")
-    st.write(f"X_test shape: {X_test.shape}, y_test shape: {y_test.shape}")
+    st.write(f"The training set number of sample: {X_train.shape[0]:,}")
+    st.write(f"The dev set number of sample: {X_test.shape[0]:,}")
     return X_train, X_test, y_train, y_test
 
 def predict_component(model):
     st.header("Prediction", "h2")
     st.write("Draw a digit on the canvas below:")
     canvas_result = drawable_canva()
-    if canvas_result.image_data is not None:
+    if canvas_result.image_data is not None and st.button("Predict"):
         st.write("Model prediction:")
         # Convert from RGBA to 1 channel
         input = image_processing(canvas_result.image_data)
@@ -61,21 +61,18 @@ def image_processing(image):
     return inverted
 
 def train_model(X_train, y_train, X_test, y_test):
-    if 'model' not in st.session_state:
-        model = models.create_model()
-        st.write("Training the model...")
-        history = model.fit(X_train, y_train, epochs=5, validation_data=(X_test, y_test), callbacks=[print_callback])
-        model.save("model.keras")
-        st.write("Model trained successfully!")
-        plt.plot(history.epoch, history.history['accuracy'], label='Training Accuracy')
-        plt.plot(history.epoch, history.history['val_accuracy'], label = 'Validation Accuracy')
-        plt.legend()
-        plt.xlabel('Epoch')
-        plt.ylabel('Accuracy')
-        st.pyplot(plt)
-        st.session_state['trained_model'] = model
-    else:
-        model = st.session_state['model']
+    model = models.create_model()
+    st.write("Training the model...")
+    history = model.fit(X_train, y_train, epochs=5, validation_data=(X_test, y_test), callbacks=[print_callback])
+    model.save("model.keras")
+    st.write("Model trained successfully!")
+    plt.plot(history.epoch, history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.epoch, history.history['val_accuracy'], label = 'Validation Accuracy')
+    plt.legend()
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    st.pyplot(plt)
+    st.session_state['trained_model'] = model
     return model
 
 if uploaded_file is not None:
@@ -115,9 +112,4 @@ if uploaded_file is not None:
         st.session_state['model'] = model
     st.divider()
     if model is not None:
-        st_canvas(
-            fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
-            stroke_width=10,
-            stroke_color="black",
-            background_color="#fff",
-        )
+        predict_component(model)
